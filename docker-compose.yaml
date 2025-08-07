@@ -1,0 +1,12 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    volumes:
+      - type: bind
+        source: ./backend/src
+        target: /app/src
+    ports:
+      - '3000:3000'
+      - '5555:5555'
