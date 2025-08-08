@@ -11,7 +11,7 @@ datasource db {
 model User {
   id            String    @id @default(cuid())
   email         String?   @unique
-  username      String?   @unique
+  username      String    @unique
   name          String    @unique
   emailVerified Boolean   @default(false)
   description   String?
@@ -20,8 +20,11 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime?
 
-  sessions Session[]
-  accounts Account[]
+  joinRequests JoinRequest[]
+  joinedGroup  GroupMember[]
+  events       Event[]
+  sessions     Session[]
+  accounts     Account[]
 
   @@map("user")
 }
@@ -71,4 +74,103 @@ model Verification {
   updatedAt  DateTime?
 
   @@map("verification")
+}
+
+model Group {
+  id             String   @id @default(cuid())
+  name           String   @unique
+  location       String?
+  createdAt      DateTime @default(now())
+  joinMode       JoinMode @default(PUBLIC)
+  sportPracticed Sport[]
+
+  chats         ChatMessage[]
+  members       GroupMember[]
+  joinRequest   JoinRequest[]
+  membersBanned MemberBanned[]
+  events        Event[]
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  startAt     DateTime
+  createdAt   DateTime @default(now())
+  groupId     String
+  creatorId   String
+  description String?
+  location    String?
+  gpx         Json?
+
+  user  User  @relation(fields: [creatorId], references: [id])
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+}
+
+model MemberBanned {
+  id      String @id @default(cuid())
+  userId  String
+  groupId String
+  group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+}
+
+model GroupMember {
+  id        String     @id @default(cuid())
+  userId    String
+  groupId   String
+  role      MemberRole @default(MEMBER)
+  joindedAt DateTime   @default(now())
+  user      User       @relation(fields: [userId], references: [id])
+  group     Group      @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, groupId])
+}
+
+model JoinRequest {
+  id        String   @id @default(cuid())
+  userId    String
+  groupId   String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, groupId])
+}
+
+model ChatMessage {
+  id              String    @id @default(cuid())
+  userId          String?
+  type            ChatType
+  content         String
+  replyTo         String?
+  groupId         String
+  hasBeenModified Boolean   @default(false)
+  sendedAt        DateTime  @default(now())
+  modifiedAt      DateTime?
+
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+}
+
+enum ChatType {
+  INFO
+  USER
+}
+
+enum MemberRole {
+  ADMIN
+  MEMBER
+  MODERATOR
+}
+
+enum JoinMode {
+  PRIVATE
+  PUBLIC
+  INVITATION
+}
+
+enum Sport {
+  ROAD_CYCLING
+  ROAD_MOUNTAIN
+  RUNNING
+  TRAIL
 }
