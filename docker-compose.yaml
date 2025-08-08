@@ -5,8 +5,8 @@ services:
       dockerfile: Dockerfile.dev
     volumes:
       - type: bind
-        source: ./backend/src
-        target: /app/src
+        source: ./backend
+        target: /app
     ports:
       - '3000:3000'
       - '5555:5555'
