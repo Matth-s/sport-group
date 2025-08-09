@@ -4,13 +4,13 @@ import {
   getGroupById,
   isUserBannedByUserIdAndGroupId,
   isUserInGroup,
-  getJoinRequest,
 } from '../../data/group-data';
 import { prisma } from '../../lib/prisma';
 import { AuthenticatedRequest, Tx } from '../../types/type';
 import { newGroupMember } from '../../services/group-member-service';
 import { newGroupMessage } from '../../services/group-message-service';
-import { createJoinRequest } from '../../services/group-request-services';
+import { createJoinRequest } from '../../services/group-request-service';
+import { getJoinRequest } from '../../data/request-group-data';
 
 export const newJoinRequestController = async (
   req: AuthenticatedRequest,

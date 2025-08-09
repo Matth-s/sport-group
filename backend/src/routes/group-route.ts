@@ -35,10 +35,10 @@ router.put(
   updateGroupController
 );
 
-router.delete('/:groupId/delete', [
-  requireAuth,
-  requiredGroupModerator,
-  deleteGroupController,
-]);
+router.delete(
+  '/:groupId/delete',
+  [requireAuth, requiredGroupModerator],
+  deleteGroupController
+);
 
 export default router;

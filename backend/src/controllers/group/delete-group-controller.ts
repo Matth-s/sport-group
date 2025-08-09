@@ -16,7 +16,6 @@ export const deleteGroupController = async (
 
   const {
     params: { groupId: groupIdParams },
-    user,
   } = req;
 
   const validatedFields = paramsSchema.safeParse({
@@ -53,6 +52,4 @@ export const deleteGroupController = async (
       error: 'Une erreur serveur est survenue',
     });
   }
-
-  //si l utilisateur actuel
 };

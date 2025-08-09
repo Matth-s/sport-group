@@ -13,9 +13,12 @@ export const createGroupController = async (
   const validatedFields = newGroupSchema.safeParse(body);
 
   if (!validatedFields.success) {
-    return res.status(400).json({
-      error: 'Invalid form data',
-    });
+    return res.status(400).json(
+      validatedFields.error.flatten((error) => ({
+        message: error.message,
+        field: error.path,
+      }))
+    );
   }
 
   const { name } = validatedFields.data;
@@ -32,6 +35,10 @@ export const createGroupController = async (
     const groupSaved = await createGroup({
       group: validatedFields.data,
       userId: user.userId,
+    });
+
+    req.app.get('io').emit('group', {
+      ...groupSaved,
     });
 
     return res.status(201).json(groupSaved);

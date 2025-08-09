@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../../types/type';
 import { getJoinRequest } from '../../data/group-data';
-import { deleteJoinRequest } from '../../services/group-request-services';
+import { deleteJoinRequest } from '../../services/group-request-service';
 
 export const deleteJoinRequestController = async (
   req: AuthenticatedRequest,

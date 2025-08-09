@@ -1,6 +1,6 @@
 import { prisma } from '../lib/prisma';
 
-export const getRequestById = async (id: string) => {
+export const getJoinRequestById = async (id: string) => {
   try {
     const existingRequest = await prisma.joinRequest.findUnique({
       where: {
@@ -14,6 +14,29 @@ export const getRequestById = async (id: string) => {
         },
       },
     });
+    return existingRequest;
+  } catch {
+    throw new Error('Une erreur est survenue');
+  }
+};
+
+export const getJoinRequest = async ({
+  groupId,
+  userId,
+}: {
+  groupId: string;
+  userId: string;
+}) => {
+  try {
+    const existingRequest = await prisma.joinRequest.findUnique({
+      where: {
+        userId_groupId: {
+          userId,
+          groupId,
+        },
+      },
+    });
+
     return existingRequest;
   } catch {
     throw new Error('Une erreur est survenue');

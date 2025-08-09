@@ -1,9 +1,9 @@
 import { Response } from 'express';
 import { AuthenticatedRequest, Tx } from '../../types/type';
 import { acceptDeleteRequestSchema } from '../../schemas/group-request/accept-delete-request-schema';
-import { getRequestById } from '../../data/request-group-data';
+import { getJoinRequestById } from '../../data/request-group-data';
 import { prisma } from '../../lib/prisma';
-import { deleteJoinRequest } from '../../services/group-request-services';
+import { deleteJoinRequest } from '../../services/group-request-service';
 import { newGroupMessage } from '../../services/group-message-service';
 
 export const rejectJoinReject = async (
@@ -33,7 +33,7 @@ export const rejectJoinReject = async (
   const { requestId, groupId } = validatedFields.data;
 
   // verifier si la demande existe encore
-  const existingRequest = await getRequestById(requestId);
+  const existingRequest = await getJoinRequestById(requestId);
 
   //si elle n existe pas erreur 404
   if (!existingRequest) {

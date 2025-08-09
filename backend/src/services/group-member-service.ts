@@ -53,3 +53,21 @@ export const newGroupMember = async ({
     throw new Error('Une erreur survenue lors de l ajout du member');
   }
 };
+
+export const deleteGroupMemberById = async ({
+  tx = prisma,
+  id,
+}: {
+  tx: Tx;
+  id: string;
+}) => {
+  try {
+    await tx.groupMember.delete({
+      where: {
+        id,
+      },
+    });
+  } catch {
+    throw new Error('Une erreur est survenue');
+  }
+};

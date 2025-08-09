@@ -42,19 +42,7 @@ app.use('/api/group', groupRoutes);
 
 // Socket.IO
 app.set('io', io);
-io.on('connection', (socket) => {
-  console.log('🔌 A user connected');
 
-  socket.on('group', (data) => {
-    console.log('📢 Group event:', data);
-  });
-
-  socket.on('disconnect', () => {
-    console.log('❌ User disconnected');
-  });
-});
-
-// ⚠️ IMPORTANT → écouter avec server.listen, pas app.listen
 server.listen(port, () => {
   console.log(`🚀 Server running at http://localhost:${port}`);
 });
