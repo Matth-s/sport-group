@@ -4,6 +4,7 @@ import { updateRoleController } from '../controllers/group-member/update-role-co
 import { requireAuth } from '../middleware/required-auth-middleware';
 import { requireUserInGroup } from '../middleware/require-user-in-group-middleware';
 import { leaveGroupController } from '../controllers/group-member/leave-group-controller';
+import { kickMemberController } from '../controllers/group-member/kick-member-controller';
 
 const router = Router({
   mergeParams: true,
@@ -16,6 +17,12 @@ router.put(
   '/new-role/:userId',
   requiredGroupModeratorOrAdmin,
   updateRoleController
+);
+
+router.delete(
+  '/kick/:userId',
+  requireUserInGroup,
+  kickMemberController
 );
 
 router.delete('/leave', requireUserInGroup, leaveGroupController);
