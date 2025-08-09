@@ -1,17 +1,11 @@
-import { Prisma, PrismaClient } from '@prisma/client';
-import { DefaultArgs } from '@prisma/client/runtime/library';
+import { Prisma } from '@prisma/client';
 import { Request } from 'express';
 
-export interface AuthenticatedRequest<
-  P = Record<string, any>,
-  ResBody = any,
-  ReqBody = any,
-  ReqQuery = Record<string, any>,
-> extends Request<P, ResBody, ReqBody, ReqQuery> {
+export interface AuthenticatedRequest extends Request {
   user: {
     userId: string;
     username: string;
-    image: string | null | undefined;
+    image: string | undefined | null;
   };
 }
 

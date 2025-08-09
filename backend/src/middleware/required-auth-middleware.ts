@@ -7,17 +7,16 @@ export async function requireAuth(
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void> {
+) {
   try {
     const session = await auth.api.getSession({
       headers: fromNodeHeaders(req.headers),
     });
 
     if (!session) {
-      res.status(401).json({
+      return res.status(401).json({
         error: 'Session expirée',
       });
-      return;
     }
 
     (req as AuthenticatedRequest).user = {

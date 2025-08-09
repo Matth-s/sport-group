@@ -4,9 +4,7 @@ import { requiredGroupModerator } from '../middleware/required-group-moderator-m
 import {
   getGroupController,
   createGroupController,
-  getMyGroupController,
   updateGroupController,
-  getGroupJoinedController,
 } from '../controllers/group/group-index';
 import { deleteGroupController } from '../controllers/group/delete-group-controller';
 
@@ -22,8 +20,6 @@ router.use('/:groupId/member', groupMemberRequestRoutes);
 
 //get
 router.get('/', getGroupController);
-router.get('/my-group', requireAuth, getMyGroupController);
-router.get('/group-joined', requireAuth, getGroupJoinedController);
 
 //post
 router.post('/new-group', requireAuth, createGroupController);
