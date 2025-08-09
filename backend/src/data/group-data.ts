@@ -129,13 +129,13 @@ export const isUserInGroup = async ({
   }
 };
 
-export const isUserInGroupRequest = async ({
+export const getJoinRequest = async ({
   groupId,
   userId,
 }: {
   groupId: string;
   userId: string;
-}): Promise<boolean> => {
+}) => {
   try {
     const existingRequest = await prisma.joinRequest.findUnique({
       where: {
@@ -146,7 +146,7 @@ export const isUserInGroupRequest = async ({
       },
     });
 
-    return !!existingRequest;
+    return existingRequest;
   } catch {
     throw new Error('Une erreur est survenue');
   }

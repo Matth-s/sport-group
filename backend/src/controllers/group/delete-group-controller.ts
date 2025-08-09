@@ -1,7 +1,8 @@
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../../types/type';
 import { z } from 'zod';
-import { prisma } from '../../lib/prisma';
+import { getGroupMemberWithOutModerator } from '../../data/group-member-data';
+import { deleteGroupById } from '../../services/group-service';
 
 const paramsSchema = z.object({
   groupId: z.string().trim().min(1),
@@ -31,20 +32,7 @@ export const deleteGroupController = async (
   const { groupId } = validatedFields.data;
 
   //recuperer le group avec les membres sauf le moderateur
-  const groupMembers = await prisma.group.findFirst({
-    where: {
-      id: groupId,
-    },
-    select: {
-      members: {
-        where: {
-          role: {
-            notIn: ['MODERATOR'],
-          },
-        },
-      },
-    },
-  });
+  const groupMembers = await getGroupMemberWithOutModerator(groupId);
 
   //s il y a d autres membres retourner une erreur 403
   if (!groupMembers || groupMembers?.members?.length > 0) {
@@ -55,17 +43,7 @@ export const deleteGroupController = async (
   }
 
   try {
-    await prisma.group.delete({
-      where: {
-        id: groupId,
-        members: {
-          some: {
-            userId: user.userId,
-            role: 'MODERATOR',
-          },
-        },
-      },
-    });
+    await deleteGroupById(groupId);
 
     return res.status(200).json({
       message: 'Le groupe a été supprimé avec succès',

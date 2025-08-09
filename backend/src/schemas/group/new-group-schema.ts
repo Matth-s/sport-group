@@ -13,7 +13,7 @@ export const newGroupSchema = z.object({
       message:
         'Le nom du groupe doit avoir une longueur minimum de 30 caractères',
     }),
-  location: z.string().trim().optional(),
+  location: z.string().trim().nullable(),
   joinMode: groupTypeEnum,
   sportPracticed: sportPracticedEnum.optional().default([]),
 });

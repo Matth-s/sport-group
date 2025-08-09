@@ -1,10 +1,7 @@
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../../types/type';
-import {
-  getGroupById,
-  isUserInGroupRequest,
-} from '../../data/group-data';
-import { prisma } from '../../lib/prisma';
+import { getJoinRequest } from '../../data/group-data';
+import { deleteJoinRequest } from '../../services/group-request-services';
 
 export const deleteJoinRequestController = async (
   req: AuthenticatedRequest,
@@ -21,7 +18,7 @@ export const deleteJoinRequestController = async (
     });
   }
 
-  const existingJoinRequest = await isUserInGroupRequest({
+  const existingJoinRequest = await getJoinRequest({
     groupId,
     userId: user.userId,
   });
@@ -33,13 +30,8 @@ export const deleteJoinRequestController = async (
   }
 
   try {
-    await prisma.joinRequest.delete({
-      where: {
-        userId_groupId: {
-          userId: user.userId,
-          groupId,
-        },
-      },
+    await deleteJoinRequest({
+      id: existingJoinRequest.id,
     });
 
     req.app

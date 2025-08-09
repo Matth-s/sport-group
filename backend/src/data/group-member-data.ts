@@ -29,3 +29,28 @@ export const getGroupMemberAndUsername = async ({
     throw new Error('Une erreur est survenue');
   }
 };
+
+export const getGroupMemberWithOutModerator = async (
+  groupId: string
+) => {
+  try {
+    const groupMembers = await prisma.group.findFirst({
+      where: {
+        id: groupId,
+      },
+      select: {
+        members: {
+          where: {
+            role: {
+              notIn: ['MODERATOR'],
+            },
+          },
+        },
+      },
+    });
+
+    return groupMembers;
+  } catch {
+    throw new Error('Une erreur est survenue');
+  }
+};

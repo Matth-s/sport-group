@@ -4,10 +4,13 @@ import {
   getGroupById,
   isUserBannedByUserIdAndGroupId,
   isUserInGroup,
-  isUserInGroupRequest,
+  getJoinRequest,
 } from '../../data/group-data';
 import { prisma } from '../../lib/prisma';
-import { AuthenticatedRequest } from '../../types/type';
+import { AuthenticatedRequest, Tx } from '../../types/type';
+import { newGroupMember } from '../../services/group-member-service';
+import { newGroupMessage } from '../../services/group-message-service';
+import { createJoinRequest } from '../../services/group-request-services';
 
 export const newJoinRequestController = async (
   req: AuthenticatedRequest,
@@ -78,27 +81,34 @@ export const newJoinRequestController = async (
   try {
     //si le groupe est ouvert ajouter directement en membre
     if (existingGroup.joinMode === 'PUBLIC') {
-      await prisma.$transaction([
-        prisma.groupMember.create({
-          data: {
+      await prisma.$transaction(async (tx: Tx) => {
+        //ajouter le nouvel utilisateur dans le groupe
+        await newGroupMember({
+          tx,
+          member: {
             userId,
             groupId,
             role: 'MEMBER',
           },
-        }),
-        prisma.chatMessage.create({
-          data: {
+        });
+
+        //poster un message d adhesion au groupe
+        await newGroupMessage({
+          tx,
+          message: {
             groupId,
             content: `${user.username} à rejoint le groupe`,
             type: 'INFO',
+            replyTo: null,
+            userId: null,
           },
-        }),
-      ]);
+        });
+      });
 
       req.app
         .get('io')
         .to(`group-${groupId}`)
-        .emit('new-join-request');
+        .emit('new-member-accept');
 
       return res.status(201).json({
         message: `Vous faites désormais par du groupe ${existingGroup.name}`,
@@ -111,7 +121,7 @@ export const newJoinRequestController = async (
     //faire une demande d adhesion
     if (existingGroup.joinMode === 'INVITATION') {
       //verifier s il existe deja une demande
-      const existingRequest = await isUserInGroupRequest({
+      const existingRequest = await getJoinRequest({
         groupId,
         userId,
       });
@@ -121,19 +131,19 @@ export const newJoinRequestController = async (
           message: "Une demande d'adhésion est déjà en cours",
         });
       }
-      await prisma.joinRequest.create({
-        data: {
-          userId,
-          groupId,
-        },
+
+      await createJoinRequest({
+        userId,
+        groupId,
       });
     }
+
+    req.app.get('io').to(`group-${groupId}`).emit('new-join-request');
 
     return res.status(201).json({
       message: 'Votre demande à été envoyé',
     });
-  } catch (err) {
-    console.log(err);
+  } catch {
     return res.status(500).json({
       error: 'Une erreur serveur est survenue',
     });

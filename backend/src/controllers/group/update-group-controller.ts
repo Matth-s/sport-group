@@ -1,8 +1,8 @@
 import { Response } from 'express';
 import { updateGroupSchema } from '../../schemas/group/update-group-schema';
 import { getGroupByName } from '../../data/group-data';
-import { prisma } from '../../lib/prisma';
 import { AuthenticatedRequest } from '../../types/type';
+import { updateGroupById } from '../../services/group-service';
 
 export const updateGroupController = async (
   req: AuthenticatedRequest,
@@ -21,8 +21,7 @@ export const updateGroupController = async (
     });
   }
 
-  const { name, sportPracticed, joinMode, location } =
-    validatedForm.data;
+  const { name } = validatedForm.data;
 
   //si le groupe existe et que le groupId correspond alors le nom du groupe n'est pas utilisé
   const existingGroupName = await getGroupByName(name);
@@ -34,17 +33,7 @@ export const updateGroupController = async (
   }
 
   try {
-    const updatedGroup = await prisma.group.update({
-      where: {
-        id: groupId,
-      },
-      data: {
-        name,
-        sportPracticed,
-        joinMode,
-        location,
-      },
-    });
+    const updatedGroup = await updateGroupById(validatedForm.data);
 
     return res.status(201).json(updatedGroup);
   } catch {

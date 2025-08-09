@@ -1,8 +1,10 @@
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../../types/type';
+import { AuthenticatedRequest, Tx } from '../../types/type';
 import { acceptDeleteRequestSchema } from '../../schemas/group-request/accept-delete-request-schema';
 import { getRequestById } from '../../data/request-group-data';
 import { prisma } from '../../lib/prisma';
+import { deleteJoinRequest } from '../../services/group-request-services';
+import { newGroupMessage } from '../../services/group-message-service';
 
 export const rejectJoinReject = async (
   req: AuthenticatedRequest,
@@ -42,20 +44,20 @@ export const rejectJoinReject = async (
 
   try {
     //supprimer la demande, créer un chat message
-    await prisma.$transaction([
-      prisma.joinRequest.delete({
-        where: {
-          id: requestId,
-        },
-      }),
-      prisma.chatMessage.create({
-        data: {
+
+    await prisma.$transaction(async (tx: Tx) => {
+      await deleteJoinRequest({ tx, id: requestId });
+      await newGroupMessage({
+        tx,
+        message: {
           groupId,
           type: 'INFO',
           content: `${user.username} a refusé ${existingRequest.user.username}`,
+          replyTo: null,
+          userId: null,
         },
-      }),
-    ]);
+      });
+    });
 
     req.app.get('io').to(`group-${groupId}`).emit('rejected-member');
 

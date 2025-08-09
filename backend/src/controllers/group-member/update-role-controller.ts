@@ -5,7 +5,7 @@ import { prisma } from '../../lib/prisma';
 import { MemberRole } from '@prisma/client';
 import { getGroupMemberAndUsername } from '../../data/group-member-data';
 import { updateGroupMember } from '../../services/group-member-service';
-import { postGroupMessage } from '../../services/group-service';
+import { newGroupMessage } from '../../services/group-message-service';
 import { canUpdateRole } from '../../utils/role-util';
 
 const paramsSchema = z.object({
@@ -84,11 +84,15 @@ export const updateRoleController = async (
           groupId,
           role: 'MODERATOR',
         });
-        await postGroupMessage({
+        await newGroupMessage({
           tx,
-          groupId,
-          type: 'INFO',
-          content: `${userTarget.user.username} est désormais modérateur`,
+          message: {
+            groupId,
+            type: 'INFO',
+            content: `${userTarget.user.username} est désormais modérateur`,
+            replyTo: null,
+            userId: null,
+          },
         });
       } else {
         await updateGroupMember({
@@ -97,11 +101,15 @@ export const updateRoleController = async (
           groupId,
           role: newRole,
         });
-        await postGroupMessage({
+        await newGroupMessage({
           tx,
-          groupId,
-          type: 'INFO',
-          content: `${userTarget.user.username} a un nouveau rôle`,
+          message: {
+            groupId,
+            type: 'INFO',
+            content: `${userTarget.user.username} a un nouveau rôle`,
+            replyTo: null,
+            userId: null,
+          },
         });
       }
     });

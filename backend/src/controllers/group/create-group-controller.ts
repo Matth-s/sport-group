@@ -1,8 +1,8 @@
 import { Response } from 'express';
 import { newGroupSchema } from '../../schemas/group/new-group-schema';
 import { getGroupByName } from '../../data/group-data';
-import { prisma } from '../../lib/prisma';
 import { AuthenticatedRequest } from '../../types/type';
+import { createGroup } from '../../services/group-service';
 
 export const createGroupController = async (
   req: AuthenticatedRequest,
@@ -10,16 +10,15 @@ export const createGroupController = async (
 ) => {
   const { body, user } = req;
 
-  const validatedForm = newGroupSchema.safeParse(body);
+  const validatedFields = newGroupSchema.safeParse(body);
 
-  if (!validatedForm.success) {
+  if (!validatedFields.success) {
     return res.status(400).json({
       error: 'Invalid form data',
     });
   }
 
-  const { name, joinMode, location, sportPracticed } =
-    validatedForm.data;
+  const { name } = validatedFields.data;
 
   const existingGroup = await getGroupByName(name);
 
@@ -30,18 +29,9 @@ export const createGroupController = async (
   }
 
   try {
-    const groupSaved = await prisma.group.create({
-      data: {
-        name,
-        joinMode,
-        location,
-        sportPracticed,
-        members: {
-          create: {
-            userId: user.userId,
-          },
-        },
-      },
+    const groupSaved = await createGroup({
+      group: validatedFields.data,
+      userId: user.userId,
     });
 
     return res.status(201).json(groupSaved);
