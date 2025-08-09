@@ -8,13 +8,17 @@ import {
   updateGroupController,
   getGroupJoinedController,
 } from '../controllers/group/group-index';
+import { deleteGroupController } from '../controllers/group/delete-group-controller';
 
-import groupMemberRoutes from './group-member-request-route';
+import groupRequestRoutes from './group-join-request-route';
+import groupMemberRequestRoutes from './group-member-route';
 
 const router = Router({ mergeParams: true });
 
 // routes pour handle les demande d'adhesion
-router.use('/:groupId/request', groupMemberRoutes);
+router.use('/:groupId/request', groupRequestRoutes);
+//route pour gerer les membres
+router.use('/:groupId/member', groupMemberRequestRoutes);
 
 //get
 router.get('/', getGroupController);
@@ -30,5 +34,11 @@ router.put(
   [requireAuth, requiredGroupModerator],
   updateGroupController
 );
+
+router.delete('/:groupId/delete', [
+  requireAuth,
+  requiredGroupModerator,
+  deleteGroupController,
+]);
 
 export default router;

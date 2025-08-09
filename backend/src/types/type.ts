@@ -1,3 +1,5 @@
+import { Prisma, PrismaClient } from '@prisma/client';
+import { DefaultArgs } from '@prisma/client/runtime/library';
 import { Request } from 'express';
 
 export interface AuthenticatedRequest<
@@ -12,3 +14,5 @@ export interface AuthenticatedRequest<
     image: string | null | undefined;
   };
 }
+
+export type Tx = Prisma.TransactionClient;
